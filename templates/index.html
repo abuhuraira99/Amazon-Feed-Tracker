@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Feed Updates</title>
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1>FeedTracker</h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Upload Section -->
+            <section class="upload-section glass-panel">
+                <h2>Upload New Feed</h2>
+                <p>Upload the latest .txt feed file to compare inventory changes against the database.</p>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept=".txt" hidden>
+                    <button class="btn-primary" id="chooseFileBtn">Choose File</button>
+                    <span id="fileNameDisplay" class="file-name">No file selected</span>
+                    <button class="btn-action" id="uploadBtn" disabled>Upload & Compare</button>
+                </div>
+                <div class="progress-bar-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p id="statusText" class="status-text"></p>
+                <div id="rowStats" class="hidden" style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.95rem;">
+                    Total Rows in Uploaded Feed: <span id="totalRowsCount" style="color: var(--text-primary); font-weight: 600;">0</span>
+                </div>
+            </section>
+
+            <!-- Search Section -->
+            <section class="search-section glass-panel">
+                <h2>Database Lookup</h2>
+                <p>Search by barcode to see the current status of an item in the database.</p>
+                <div class="search-area">
+                    <input type="text" id="searchInput" placeholder="Enter barcode..." class="search-input">
+                    <button class="btn-primary" id="searchBtn">Search</button>
+                </div>
+                <div id="searchResult" class="search-result hidden">
+                    <!-- Search result injected here -->
+                </div>
+                
+                <!-- New Database Management Feature -->
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h4 style="margin-bottom: 10px; color: var(--text-primary);">Database Management</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem;">
+                        Download a complete snapshot of all products currently in stock within the main database. 
+                        You can do this at any time without needing to upload a new feed file.
+                    </p>
+                    <a href="/export_current_stock" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; width: fit-content;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download Current Database (In Stock)
+                    </a>
+                </div>
+            </section>
+
+            <!-- Actions Section (Hidden initially) -->
+            <section class="actions-section glass-panel hidden" id="actionsSection">
+                <h2>Generated Reports</h2>
+                <p>Download the excel files containing the updated inventory data.</p>
+                <div class="button-group">
+                    <a href="#" class="btn-download" id="btnInStock">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        In Stock (New)
+                    </a>
+                    <a href="#" class="btn-download" id="btnOutStock">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Out of Stock
+                    </a>
+                    <a href="#" class="btn-download" id="btnPriceChanged">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Price Changed
+                    </a>
+                    <a href="#" class="btn-download" id="btnNewProducts">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        New Products
+                    </a>
+                </div>
+            </section>
+
+            <!-- Table Section (Hidden initially) -->
+            <section class="table-section glass-panel hidden" id="tableSection">
+                <div class="table-header-row">
+                    <h2>Recent Changes</h2>
+                    <button class="btn-primary push-btn" id="pushChangesBtn">Push Changes to Database</button>
+                </div>
+                <div class="table-container">
+                    <table id="changesTable">
+                        <thead>
+                            <tr>
+                                <th>Barcode</th>
+                                <th>Title</th>
+                                <th>Change Type</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="changesTableBody">
+                            <!-- Rows will be injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-controls" id="paginationControls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                    <button class="btn-primary" id="prevPageBtn" disabled>Previous</button>
+                    <span id="pageInfo" style="color: var(--text-secondary); font-size: 0.9rem;">Page 1 of 1</span>
+                    <button class="btn-primary" id="nextPageBtn" disabled>Next</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

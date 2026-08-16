@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+uploads/
+downloads/
+*.txt
+!requirements.txt
+!PROJECT_HISTORY.md
+.DS_Store
